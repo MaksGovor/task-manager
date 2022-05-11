@@ -1,22 +1,21 @@
 {
 	"compilerOptions": {
-		"baseUrl": "./src",
+		"baseUrl": ".",
 		"target": "ES2017",
 		"lib": ["dom", "dom.iterable", "esnext"],
-		"allowJs": false,
+		"allowJs": true,
 		"skipLibCheck": true,
 		"esModuleInterop": true,
 		"allowSyntheticDefaultImports": true,
 		"strict": true,
 		"forceConsistentCasingInFileNames": true,
 		"noFallthroughCasesInSwitch": true,
-		"module": "esnext",
+		"module": "commonjs",
 		"moduleResolution": "node",
 		"resolveJsonModule": true,
 		"isolatedModules": true,
-		"noEmit": true,
-		"jsx": "react-jsx",
-		"outDir": "lib-temp"
+		"noEmit": false,
+		"outDir": "lib-scripts"
 	},
-	"include": ["src"]
+	"include": ["generateServiceClient.ts"]
 }
