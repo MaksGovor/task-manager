@@ -2,6 +2,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
+import type { ProjectResponseDto } from './ProjectResponseDto';
+import type { UserResponseDto } from './UserResponseDto';
+
 export type TaskResponseDto = {
     TaskId?: number;
     TaskName: string;
@@ -10,6 +13,6 @@ export type TaskResponseDto = {
     Status: 0 | 1 | 2;
     StartDate?: string;
     EndDate?: string;
-    ProjectId: number;
-    ExecutorId: number;
+    Project: ProjectResponseDto;
+    Executor: UserResponseDto;
 };
