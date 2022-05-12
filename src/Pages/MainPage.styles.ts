@@ -1,9 +1,10 @@
 import styled from 'styled-components';
 
-import Container from '@mui/material/Container';
+import Box from '@mui/material/Box';
 
-export const MainPageContainer = styled(Container)`
-	margin: 1rem;
-	padding: 1rem;
+export const MainPageContainer = styled(Box)`
+	margin: 0;
+	padding-top: 12px;
+	padding-bottom: 12px;
 	background: grey;
 `;

@@ -9,13 +9,13 @@ const taskDto: TaskResponseDto = {
   Description: "Some",
   Priority: 1,
   Status: 0,
-  StartDate: new Date().toUTCString(),
-  EndDate: new Date().toUTCString(),
+  StartDate: new Date().toString(),
+  EndDate: new Date().toString(),
   Project: {
     ProjectId: 1,
     ProjectName: "asa",
-    BeginDate: new Date().toUTCString(),
-    EndDate: new Date().toUTCString(),
+    BeginDate: Date.now().toString(),
+    EndDate: new Date().toString(),
     Owner: {
       UserId: 1,
       FirstName: "Max",

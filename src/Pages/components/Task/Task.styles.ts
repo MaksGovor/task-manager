@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 import Box from '@mui/material/Box';
-import { Stack } from '@mui/material';
 
 export const TaskContainer = styled(Box)`
 	text-align: start;
@@ -8,3 +7,7 @@ export const TaskContainer = styled(Box)`
 	margin: 1rem;
 `;
 
+export const CenteredBox = styled(Box)`
+	text-align: center;
+	margin-bottom: 12px;
+`;
