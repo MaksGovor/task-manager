@@ -11,7 +11,6 @@ import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import AlarmOnIcon from '@mui/icons-material/AlarmOn';
 import DeleteIcon from '@mui/icons-material/Delete';
-import CreateUserDialog from "../CreateUserDialog";
 
 export interface TaskProps {
 	taskDto: TaskResponseDto;
