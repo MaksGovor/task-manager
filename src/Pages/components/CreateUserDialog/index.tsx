@@ -1,2 +1,2 @@
-import CreateUserDialog from './CreateUserDialog'
+import CreateUserDialog from './CreateUserDialog';
 export default CreateUserDialog;

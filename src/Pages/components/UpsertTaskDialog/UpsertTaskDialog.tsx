@@ -16,126 +16,117 @@ import { TaskProps } from '../Task/Task';
 import { Transition } from '../shared/Transition';
 
 const users = [
-  {
-    value: '1',
-    label: 'auser',
-  },
-  {
-    value: '2',
-    label: 'buser',
-  },
+	{
+		value: '1',
+		label: 'auser',
+	},
+	{
+		value: '2',
+		label: 'buser',
+	},
 ];
 
-export default function UpsertTaskDialog({taskDto}: TaskProps) {
-  const [open, setOpen] = React.useState(false);
-  const [taskName, setTaskName] = React.useState(taskDto.TaskName);
-  const [taskDescription, setTaskDescription] = React.useState(taskDto.Description || '');
-  const [executor, setExecutor] = React.useState(taskDto.Executor.UserId);
-  const [startDate, setStartDate] = React.useState<Date | null>(new Date(taskDto.StartDate || ''));
-  const [endDate, setEndDate] = React.useState<Date | null>(new Date(taskDto.EndDate || ''));
+export default function UpsertTaskDialog({ taskDto }: TaskProps) {
+	const [open, setOpen] = React.useState(false);
+	const [taskName, setTaskName] = React.useState(taskDto.TaskName);
+	const [taskDescription, setTaskDescription] = React.useState(taskDto.Description || '');
+	const [executor, setExecutor] = React.useState(taskDto.Executor.UserId);
+	const [startDate, setStartDate] = React.useState<Date | null>(new Date(taskDto.StartDate || ''));
+	const [endDate, setEndDate] = React.useState<Date | null>(new Date(taskDto.EndDate || ''));
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
+	const handleClickOpen = () => {
+		setOpen(true);
+	};
 
-  const handleClose = () => {
-    setOpen(false);
-  };
+	const handleClose = () => {
+		setOpen(false);
+	};
 
-  return (
-    <div>
-      <IconButton aria-label="delete" size="large" onClick={handleClickOpen}>
-        <EditIcon fontSize="inherit" />
-      </IconButton>
-      <Dialog
-        fullWidth
-        maxWidth={'xs'}
-        open={open}
-        onClose={handleClose}
-        TransitionComponent={Transition}
-      >
-        <AppBar sx={{ position: 'relative' }}>
-          <Toolbar sx={{display: 'flex', justifyContent: 'space-between'}}>
-            <IconButton
-              edge="start"
-              color="inherit"
-              onClick={handleClose}
-              aria-label="close"
-            >
-              <CloseIcon />
-            </IconButton>
-            <IconButton
-              edge="start"
-              color="inherit"
-              onClick={handleClose}
-              aria-label="close"
-            >
-              <SaveIcon />
-            </IconButton>
-          </Toolbar>
-        </AppBar>
-        <List>
-          <ListItem>
-            <TextField
-              fullWidth 
-              required
-              label="Task Name"
-              value={taskName}
-              onChange={(e) => setTaskName(e.target.value)}
-            />
-          </ListItem>
-          <Divider />
-          <ListItem>
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-              <DateTimePicker
-                label="Start Date"
-                value={startDate}
-                onChange={(newValue) => {
-                  setStartDate(newValue);
-                }}
-                renderInput={(params) => <TextField {...params} />}
-              />
-            </LocalizationProvider>
-          </ListItem>
-          <ListItem>
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
-              <DateTimePicker
-                label="Deadline"
-                value={endDate}
-                onChange={(newValue) => {
-                  setEndDate(newValue);
-                }}
-                renderInput={(params) => <TextField {...params} />}
-              />
-            </LocalizationProvider>
-          </ListItem>
-          <ListItem>
-            <TextField
-              fullWidth 
-              label="Executor"
-              select
-              value={executor}
-              onChange={(e) => setExecutor(+e.target.value)}
-            >{users.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                {option.label}
-              </MenuItem>
-            ))}
-            </TextField>
-          </ListItem>
-          <Divider />
-          <ListItem>
-            <TextField
-              fullWidth 
-              label="Task Description"
-              value={taskDescription}
-              multiline
-              rows={4}
-              onChange={(e) => setTaskDescription(e.target.value)}
-            />
-          </ListItem>
-        </List>
-      </Dialog>
-    </div>
-  );
+	return (
+		<div>
+			<IconButton aria-label='delete' size='large' onClick={handleClickOpen}>
+				<EditIcon fontSize='inherit' />
+			</IconButton>
+			<Dialog
+				fullWidth
+				maxWidth={'xs'}
+				open={open}
+				onClose={handleClose}
+				TransitionComponent={Transition}
+			>
+				<AppBar sx={{ position: 'relative' }}>
+					<Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+						<IconButton edge='start' color='inherit' onClick={handleClose} aria-label='close'>
+							<CloseIcon />
+						</IconButton>
+						<IconButton edge='start' color='inherit' onClick={handleClose} aria-label='close'>
+							<SaveIcon />
+						</IconButton>
+					</Toolbar>
+				</AppBar>
+				<List>
+					<ListItem>
+						<TextField
+							fullWidth
+							required
+							label='Task Name'
+							value={taskName}
+							onChange={e => setTaskName(e.target.value)}
+						/>
+					</ListItem>
+					<Divider />
+					<ListItem>
+						<LocalizationProvider dateAdapter={AdapterDateFns}>
+							<DateTimePicker
+								label='Start Date'
+								value={startDate}
+								onChange={newValue => {
+									setStartDate(newValue);
+								}}
+								renderInput={params => <TextField {...params} />}
+							/>
+						</LocalizationProvider>
+					</ListItem>
+					<ListItem>
+						<LocalizationProvider dateAdapter={AdapterDateFns}>
+							<DateTimePicker
+								label='Deadline'
+								value={endDate}
+								onChange={newValue => {
+									setEndDate(newValue);
+								}}
+								renderInput={params => <TextField {...params} />}
+							/>
+						</LocalizationProvider>
+					</ListItem>
+					<ListItem>
+						<TextField
+							fullWidth
+							label='Executor'
+							select
+							value={executor}
+							onChange={e => setExecutor(+e.target.value)}
+						>
+							{users.map(option => (
+								<MenuItem key={option.value} value={option.value}>
+									{option.label}
+								</MenuItem>
+							))}
+						</TextField>
+					</ListItem>
+					<Divider />
+					<ListItem>
+						<TextField
+							fullWidth
+							label='Task Description'
+							value={taskDescription}
+							multiline
+							rows={4}
+							onChange={e => setTaskDescription(e.target.value)}
+						/>
+					</ListItem>
+				</List>
+			</Dialog>
+		</div>
+	);
 }

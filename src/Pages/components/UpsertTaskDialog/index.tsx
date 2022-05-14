@@ -1,2 +1,2 @@
-import UpsertTaskDialog from './UpsertTaskDialog'
+import UpsertTaskDialog from './UpsertTaskDialog';
 export default UpsertTaskDialog;
