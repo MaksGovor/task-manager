@@ -3,7 +3,7 @@ import { Button, Card, CardActions, CardContent, Divider, IconButton, Stack, Typ
 import { CenteredBox, TaskContainer } from "./Task.styles";
 import { TaskResponseDto } from "../../../clients/CoreService";
 import { getDateWithTimeZone } from "shared/utils/util";
-import EditTaskDialog from "../EditTaskDialog";
+import UpsertTaskDialog from "../UpsertTaskDialog";
 
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import DescriptionIcon from '@mui/icons-material/Description';
@@ -11,6 +11,7 @@ import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import AlarmOnIcon from '@mui/icons-material/AlarmOn';
 import DeleteIcon from '@mui/icons-material/Delete';
+import CreateUserDialog from "../CreateUserDialog";
 
 export interface TaskProps {
 	taskDto: TaskResponseDto;
@@ -64,7 +65,7 @@ function Task({taskDto}: TaskProps) {
         </Stack>
       </CardContent>
       <CardActions sx={{display: 'flex', justifyContent: 'flex-end', mt: 0}}>
-        <EditTaskDialog taskDto={taskDto}></EditTaskDialog>
+        <UpsertTaskDialog taskDto={taskDto}></UpsertTaskDialog>
         <IconButton aria-label="delete">
           <DeleteIcon />
         </IconButton>

@@ -36,7 +36,7 @@ const users = [
   },
 ];
 
-export default function EditTaskDialog({taskDto}: TaskProps) {
+export default function UpsertTaskDialog({taskDto}: TaskProps) {
   const [open, setOpen] = React.useState(false);
   const [taskName, setTaskName] = React.useState(taskDto.TaskName);
   const [taskDescription, setTaskDescription] = React.useState(taskDto.Description || '');
@@ -65,7 +65,7 @@ export default function EditTaskDialog({taskDto}: TaskProps) {
         TransitionComponent={Transition}
       >
         <AppBar sx={{ position: 'relative' }}>
-          <Toolbar>
+          <Toolbar sx={{display: 'flex', justifyContent: 'space-between'}}>
             <IconButton
               edge="start"
               color="inherit"
