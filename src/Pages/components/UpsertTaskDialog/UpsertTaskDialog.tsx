@@ -42,6 +42,10 @@ export default function UpsertTaskDialog({ taskDto }: TaskProps) {
 		setOpen(false);
 	};
 
+	const handleSave = () => {
+		setOpen(false);
+	};
+
 	return (
 		<div>
 			<IconButton aria-label='delete' size='large' onClick={handleClickOpen}>
@@ -59,7 +63,7 @@ export default function UpsertTaskDialog({ taskDto }: TaskProps) {
 						<IconButton edge='start' color='inherit' onClick={handleClose} aria-label='close'>
 							<CloseIcon />
 						</IconButton>
-						<IconButton edge='start' color='inherit' onClick={handleClose} aria-label='close'>
+						<IconButton edge='start' color='inherit' onClick={handleSave} aria-label='close'>
 							<SaveIcon />
 						</IconButton>
 					</Toolbar>

@@ -1,8 +1,11 @@
 import { Box } from '@mui/system';
 import styled from 'styled-components';
 
-export const DeskContainer = styled(Box)`
+export const HeaderContainer = styled(Box)`
 	display: flex;
 	justify-content: space-between;
-	padding: 0 10% 0;
+	max-height: 8vh;
+	height: 8vh;
+	background: #b3d0ff;
+	padding: 1vh 40px;
 `;
