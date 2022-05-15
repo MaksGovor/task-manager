@@ -34,7 +34,7 @@ export enum Status {
 function Task({ taskDto }: TaskProps) {
 	return (
 		<TaskContainer>
-			<Card sx={{ minWidth: 240, maxWidth: 310 }}>
+			<Card sx={{ minWidth: 240, maxWidth: 310, cursor: 'pointer' }}>
 				<CardContent sx={{ mb: 0 }}>
 					<CenteredBox>
 						<Button variant='contained' disabled>
