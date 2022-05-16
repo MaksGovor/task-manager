@@ -4,24 +4,40 @@ import { TaskResponseDto } from 'clients/CoreService';
 import DeskSection from '../DeskSection';
 import { DeskContainer } from './Desk.styles';
 import { Status } from '../Task/Task';
+import { DragDropContext, DropResult, ResponderProvided } from 'react-beautiful-dnd';
 
 export interface DeskPropTypes {
-	tasks: TaskResponseDto[];
+	tasks: TaskResponseDto[][];
 }
 
+export const statuses = Object.freeze([0, 1, 2]);
+
 function Desk({ tasks }: DeskPropTypes) {
+	const handleDragEnd = (result: DropResult, provided?: ResponderProvided) => {
+		console.log(result);
+
+		if (!result.destination) {
+			return;
+		}
+
+		if (result.destination.index === result.source.index) {
+			return;
+		}
+	};
+
 	return (
-		<DeskContainer>
-			<Box>
-				<DeskSection tasks={tasks} status={Status[0]}></DeskSection>
-			</Box>
-			<Box>
-				<DeskSection tasks={[]} status={Status[1]}></DeskSection>
-			</Box>
-			<Box>
-				<DeskSection tasks={tasks} status={Status[2]}></DeskSection>
-			</Box>
-		</DeskContainer>
+		<DragDropContext onDragEnd={handleDragEnd}>
+			<DeskContainer>
+				{statuses.map((id, index) => (
+					<DeskSection
+						key={id}
+						tasks={tasks[index]}
+						status={Status[id]}
+						index={index}
+					></DeskSection>
+				))}
+			</DeskContainer>
+		</DragDropContext>
 	);
 }
 

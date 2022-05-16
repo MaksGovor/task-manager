@@ -6,6 +6,7 @@ import {
 	CardContent,
 	Divider,
 	IconButton,
+	ListItem,
 	Stack,
 	Typography,
 } from '@mui/material';
@@ -20,9 +21,11 @@ import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import AlarmOnIcon from '@mui/icons-material/AlarmOn';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { Draggable } from 'react-beautiful-dnd';
 
 export interface TaskProps {
 	taskDto: TaskResponseDto;
+	index: number;
 }
 
 export enum Status {
@@ -31,59 +34,67 @@ export enum Status {
 	'Finished',
 }
 
-function Task({ taskDto }: TaskProps) {
+function Task({ taskDto, index }: TaskProps) {
 	return (
-		<TaskContainer>
-			<Card sx={{ minWidth: 240, maxWidth: 310, cursor: 'pointer' }}>
-				<CardContent sx={{ mb: 0 }}>
-					<CenteredBox>
-						<Button variant='contained' disabled>
-							{Status[taskDto.Status]}
-						</Button>
-					</CenteredBox>
-					<Divider />
-					<Stack direction='row' alignItems='center' gap={1} sx={{ mb: 1.5 }}>
-						<TaskAltIcon />
-						<Typography variant='h5' component='div'>
-							{taskDto.TaskName}
-						</Typography>
-					</Stack>
+		<Draggable draggableId={taskDto.TaskId + ''} index={index}>
+			{(provided, snapshot) => (
+				<div {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
+					<ListItem>
+						<TaskContainer>
+							<Card sx={{ minWidth: 240, maxWidth: 310, cursor: 'pointer' }}>
+								<CardContent sx={{ mb: 0 }}>
+									<CenteredBox>
+										<Button variant='contained' disabled>
+											{Status[taskDto.Status]}
+										</Button>
+									</CenteredBox>
+									<Divider />
+									<Stack direction='row' alignItems='center' gap={1} sx={{ mb: 1.5 }}>
+										<TaskAltIcon />
+										<Typography variant='h5' component='div'>
+											{taskDto.TaskName}
+										</Typography>
+									</Stack>
 
-					{taskDto.StartDate && (
-						<Stack direction='row' alignItems='center' gap={1} sx={{ mb: 1 }}>
-							<PlayCircleOutlineIcon />
-							<Typography color='text.secondary'>
-								Start: {getDateWithTimeZone(taskDto.StartDate)}
-							</Typography>
-						</Stack>
-					)}
-					{taskDto.EndDate && (
-						<Stack direction='row' alignItems='center' gap={1} sx={{ mb: 1 }}>
-							<AlarmOnIcon />
-							<Typography color='text.secondary'>
-								Deadline: {getDateWithTimeZone(taskDto.EndDate)}
-							</Typography>
-						</Stack>
-					)}
-					<Stack direction='row' alignItems='center' gap={1}>
-						<DescriptionIcon />
-						<Typography variant='body2'>
-							Description: {taskDto.Description?.slice(0, 50)}...
-						</Typography>
-					</Stack>
-					<Stack direction='row' alignItems='center' gap={1}>
-						<PersonOutlineIcon />
-						<Typography variant='body1'>Executor: {taskDto.Executor.Login}</Typography>
-					</Stack>
-				</CardContent>
-				<CardActions sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0 }}>
-					<UpsertTaskDialog taskDto={taskDto} isNew={false}></UpsertTaskDialog>
-					<IconButton aria-label='delete'>
-						<DeleteIcon />
-					</IconButton>
-				</CardActions>
-			</Card>
-		</TaskContainer>
+									{taskDto.StartDate && (
+										<Stack direction='row' alignItems='center' gap={1} sx={{ mb: 1 }}>
+											<PlayCircleOutlineIcon />
+											<Typography color='text.secondary'>
+												Start: {getDateWithTimeZone(taskDto.StartDate)}
+											</Typography>
+										</Stack>
+									)}
+									{taskDto.EndDate && (
+										<Stack direction='row' alignItems='center' gap={1} sx={{ mb: 1 }}>
+											<AlarmOnIcon />
+											<Typography color='text.secondary'>
+												Deadline: {getDateWithTimeZone(taskDto.EndDate)}
+											</Typography>
+										</Stack>
+									)}
+									<Stack direction='row' alignItems='center' gap={1}>
+										<DescriptionIcon />
+										<Typography variant='body2'>
+											Description: {taskDto.Description?.slice(0, 50)}...
+										</Typography>
+									</Stack>
+									<Stack direction='row' alignItems='center' gap={1}>
+										<PersonOutlineIcon />
+										<Typography variant='body1'>Executor: {taskDto.Executor.Login}</Typography>
+									</Stack>
+								</CardContent>
+								<CardActions sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0 }}>
+									<UpsertTaskDialog taskDto={taskDto} isNew={false}></UpsertTaskDialog>
+									<IconButton aria-label='delete'>
+										<DeleteIcon />
+									</IconButton>
+								</CardActions>
+							</Card>
+						</TaskContainer>
+					</ListItem>
+				</div>
+			)}
+		</Draggable>
 	);
 }
 
