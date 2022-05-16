@@ -9,11 +9,13 @@ import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import SaveIcon from '@mui/icons-material/Save';
 import EditIcon from '@mui/icons-material/Edit';
-import { MenuItem, TextField } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import { Button, MenuItem, TextField, Typography } from '@mui/material';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { TaskProps } from '../Task/Task';
 import { Transition } from '../shared/Transition';
+import { TaskResponseDto } from 'clients/CoreService';
 
 const users = [
 	{
@@ -26,13 +28,18 @@ const users = [
 	},
 ];
 
-export default function UpsertTaskDialog({ taskDto }: TaskProps) {
+export interface UpsertTaskDialogProps {
+	taskDto?: TaskResponseDto;
+	isNew: boolean;
+}
+
+export default function UpsertTaskDialog({ taskDto, isNew }: UpsertTaskDialogProps) {
 	const [open, setOpen] = React.useState(false);
-	const [taskName, setTaskName] = React.useState(taskDto.TaskName);
-	const [taskDescription, setTaskDescription] = React.useState(taskDto.Description || '');
-	const [executor, setExecutor] = React.useState(taskDto.Executor.UserId);
-	const [startDate, setStartDate] = React.useState<Date | null>(new Date(taskDto.StartDate || ''));
-	const [endDate, setEndDate] = React.useState<Date | null>(new Date(taskDto.EndDate || ''));
+	const [taskName, setTaskName] = React.useState(taskDto?.TaskName || '');
+	const [taskDescription, setTaskDescription] = React.useState(taskDto?.Description || '');
+	const [executor, setExecutor] = React.useState(taskDto?.Executor.UserId);
+	const [startDate, setStartDate] = React.useState<Date | null>(new Date(taskDto?.StartDate || ''));
+	const [endDate, setEndDate] = React.useState<Date | null>(new Date(taskDto?.EndDate || ''));
 
 	const handleClickOpen = () => {
 		setOpen(true);
@@ -48,9 +55,25 @@ export default function UpsertTaskDialog({ taskDto }: TaskProps) {
 
 	return (
 		<div>
-			<IconButton aria-label='delete' size='large' onClick={handleClickOpen}>
-				<EditIcon fontSize='inherit' />
-			</IconButton>
+			{isNew ? (
+				<>
+					<Typography variant='overline' component='div'>
+						Tasks for project
+					</Typography>
+					<Button
+						variant='outlined'
+						onClick={handleClickOpen}
+						sx={{ maxHeight: 20 }}
+						startIcon={<AddIcon />}
+					>
+						Add new task
+					</Button>
+				</>
+			) : (
+				<IconButton aria-label='update' size='large' onClick={handleClickOpen}>
+					<EditIcon fontSize='inherit' />
+				</IconButton>
+			)}
 			<Dialog
 				fullWidth
 				maxWidth={'xs'}

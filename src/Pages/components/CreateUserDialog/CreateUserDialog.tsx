@@ -9,7 +9,7 @@ import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import SaveIcon from '@mui/icons-material/Save';
 import AddIcon from '@mui/icons-material/Add';
-import { TextField } from '@mui/material';
+import { Avatar, ListItemAvatar, ListItemText, TextField } from '@mui/material';
 import { Transition } from '../shared/Transition';
 
 const users = [
@@ -40,9 +40,14 @@ export default function CreateUserDialog() {
 
 	return (
 		<div>
-			<IconButton size='large' onClick={handleClickOpen}>
-				<AddIcon fontSize='inherit' />
-			</IconButton>
+			<ListItem autoFocus button onClick={handleClickOpen}>
+				<ListItemAvatar>
+					<Avatar>
+						<AddIcon />
+					</Avatar>
+				</ListItemAvatar>
+				<ListItemText primary='Add account' />
+			</ListItem>
 			<Dialog
 				fullWidth
 				maxWidth={'xs'}

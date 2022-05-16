@@ -8,8 +8,9 @@ import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import SaveIcon from '@mui/icons-material/Save';
+import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
-import { MenuItem, TextField } from '@mui/material';
+import { Avatar, ListItemAvatar, ListItemText, MenuItem, TextField } from '@mui/material';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { Transition } from '../shared/Transition';
@@ -25,7 +26,11 @@ const users = [
 	},
 ];
 
-export default function UpsertProjectDialog() {
+export interface UpsertProjectDialogProps {
+	isNew: boolean;
+}
+
+export default function UpsertProjectDialog({ isNew }: UpsertProjectDialogProps) {
 	const [open, setOpen] = React.useState(false);
 	const [projectName, setProjectName] = React.useState<string>();
 	const [beginDate, setBeginDate] = React.useState<Date | null>();
@@ -42,9 +47,27 @@ export default function UpsertProjectDialog() {
 
 	return (
 		<div>
-			<IconButton aria-label='delete' size='large' onClick={handleClickOpen}>
-				<AddIcon fontSize='inherit' />
-			</IconButton>
+			{isNew ? (
+				<ListItem autoFocus button onClick={handleClickOpen}>
+					<ListItemAvatar>
+						<Avatar>
+							<AddIcon />
+						</Avatar>
+					</ListItemAvatar>
+					<ListItemText primary='Add project' />
+				</ListItem>
+			) : (
+				<IconButton
+					aria-label='update'
+					size='large'
+					onClick={e => {
+						e.stopPropagation();
+						handleClickOpen();
+					}}
+				>
+					<EditIcon fontSize='inherit' />
+				</IconButton>
+			)}
 			<Dialog
 				fullWidth
 				maxWidth={'xs'}

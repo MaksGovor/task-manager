@@ -77,7 +77,7 @@ function Task({ taskDto }: TaskProps) {
 					</Stack>
 				</CardContent>
 				<CardActions sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0 }}>
-					<UpsertTaskDialog taskDto={taskDto}></UpsertTaskDialog>
+					<UpsertTaskDialog taskDto={taskDto} isNew={false}></UpsertTaskDialog>
 					<IconButton aria-label='delete'>
 						<DeleteIcon />
 					</IconButton>
