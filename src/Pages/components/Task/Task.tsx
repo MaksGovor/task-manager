@@ -11,7 +11,7 @@ import {
 	Typography,
 } from '@mui/material';
 import { CenteredBox, TaskContainer } from './Task.styles';
-import { TaskResponseDto } from '../../../clients/CoreService';
+import { ProjectResponseDto, TaskResponseDto, UserResponseDto } from '../../../clients/CoreService';
 import { getDateWithTimeZone } from 'shared/utils/util';
 import UpsertTaskDialog from '../UpsertTaskDialog';
 
@@ -26,6 +26,8 @@ import { Draggable } from 'react-beautiful-dnd';
 export interface TaskProps {
 	taskDto: TaskResponseDto;
 	index: number;
+	users: UserResponseDto[];
+	projects: ProjectResponseDto[];
 }
 
 export enum Status {
@@ -34,7 +36,13 @@ export enum Status {
 	'Finished',
 }
 
-function Task({ taskDto, index }: TaskProps) {
+enum ColorStatus {
+	'#c7d16f',
+	'#42add4',
+	'#42d48f',
+}
+
+function Task({ taskDto, index, users, projects }: TaskProps) {
 	return (
 		<Draggable draggableId={taskDto.TaskId + ''} index={index}>
 			{(provided, snapshot) => (
@@ -44,7 +52,11 @@ function Task({ taskDto, index }: TaskProps) {
 							<Card sx={{ minWidth: 240, maxWidth: 310, cursor: 'pointer' }}>
 								<CardContent sx={{ mb: 0 }}>
 									<CenteredBox>
-										<Button variant='contained' disabled>
+										<Button
+											variant='contained'
+											disabled
+											style={{ backgroundColor: ColorStatus[taskDto.Status] }}
+										>
 											{Status[taskDto.Status]}
 										</Button>
 									</CenteredBox>
@@ -55,7 +67,6 @@ function Task({ taskDto, index }: TaskProps) {
 											{taskDto.TaskName}
 										</Typography>
 									</Stack>
-
 									{taskDto.StartDate && (
 										<Stack direction='row' alignItems='center' gap={1} sx={{ mb: 1 }}>
 											<PlayCircleOutlineIcon />
@@ -84,7 +95,12 @@ function Task({ taskDto, index }: TaskProps) {
 									</Stack>
 								</CardContent>
 								<CardActions sx={{ display: 'flex', justifyContent: 'flex-end', mt: 0 }}>
-									<UpsertTaskDialog taskDto={taskDto} isNew={false}></UpsertTaskDialog>
+									<UpsertTaskDialog
+										taskDto={taskDto}
+										isNew={false}
+										users={users}
+										projects={projects}
+									/>
 									<IconButton aria-label='delete'>
 										<DeleteIcon />
 									</IconButton>

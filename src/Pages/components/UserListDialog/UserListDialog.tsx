@@ -15,37 +15,11 @@ import { Box, IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CreateUserDialog from '../CreateUserDialog';
 
-const users: UserResponseDto[] = [
-	{
-		UserId: 1,
-		FirstName: 'Max',
-		LastName: 'Maxim',
-		Login: 'mm',
-	},
-	{
-		UserId: 2,
-		FirstName: 'Tima',
-		LastName: 'R',
-		Login: 'tt',
-	},
-	{
-		UserId: 3,
-		FirstName: 'Alina',
-		LastName: 'Maxim',
-		Login: 'alina',
-	},
-	{
-		UserId: 4,
-		FirstName: 'Mark',
-		LastName: 'ma',
-		Login: 'mm',
-	},
-];
-
 export interface SimpleDialogProps {
 	open: boolean;
 	selectedValue: string;
 	onClose: (value: string) => void;
+	users: UserResponseDto[];
 }
 
 function SimpleDialog(props: SimpleDialogProps) {
@@ -63,7 +37,7 @@ function SimpleDialog(props: SimpleDialogProps) {
 		<Dialog onClose={handleClose} open={open} fullWidth maxWidth={'xs'}>
 			<DialogTitle>Accounts</DialogTitle>
 			<List sx={{ pt: 0 }}>
-				{users.map(user => (
+				{props.users.map(user => (
 					<ListItem button onClick={() => handleListItemClick(user.Login)} key={user.UserId}>
 						<ListItemAvatar>
 							<Avatar sx={{ bgcolor: blue[100], color: blue[600] }}>
@@ -88,9 +62,13 @@ function SimpleDialog(props: SimpleDialogProps) {
 	);
 }
 
-export default function UserListDialog() {
+export interface UserListDialogProps {
+	users: UserResponseDto[];
+}
+
+export default function UserListDialog({ users }: UserListDialogProps) {
 	const [open, setOpen] = React.useState(false);
-	const [selectedValue, setSelectedValue] = React.useState(users[1].Login);
+	const [selectedValue, setSelectedValue] = React.useState(users[0] ? users[0].Login : '');
 
 	const handleClickOpen = () => {
 		setOpen(true);
@@ -109,7 +87,7 @@ export default function UserListDialog() {
 			<Button variant='outlined' onClick={handleClickOpen} sx={{ maxHeight: 20 }}>
 				Manage users
 			</Button>
-			<SimpleDialog selectedValue={selectedValue} open={open} onClose={handleClose} />
+			<SimpleDialog selectedValue={selectedValue} open={open} onClose={handleClose} users={users} />
 		</Box>
 	);
 }

@@ -14,6 +14,7 @@ import { Avatar, ListItemAvatar, ListItemText, MenuItem, TextField } from '@mui/
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { Transition } from '../shared/Transition';
+import { ProjectResponseDto, UserResponseDto } from 'clients/CoreService';
 
 const users = [
 	{
@@ -28,14 +29,16 @@ const users = [
 
 export interface UpsertProjectDialogProps {
 	isNew: boolean;
+	users: UserResponseDto[];
+	project?: ProjectResponseDto;
 }
 
-export default function UpsertProjectDialog({ isNew }: UpsertProjectDialogProps) {
+export default function UpsertProjectDialog({ isNew, users, project }: UpsertProjectDialogProps) {
 	const [open, setOpen] = React.useState(false);
-	const [projectName, setProjectName] = React.useState<string>();
-	const [beginDate, setBeginDate] = React.useState<Date | null>();
-	const [endDate, setEndDate] = React.useState<Date | null>();
-	const [ownerId, setOwnerId] = React.useState<number>();
+	const [projectName, setProjectName] = React.useState<string>(project ? project.ProjectName : '');
+	const [beginDate, setBeginDate] = React.useState<Date | null>(new Date(project?.BeginDate || ''));
+	const [endDate, setEndDate] = React.useState<Date | null>(new Date(project?.EndDate || ''));
+	const [ownerId, setOwnerId] = React.useState<number | undefined>(project?.Owner.UserId);
 
 	const handleClickOpen = () => {
 		setOpen(true);
@@ -129,9 +132,9 @@ export default function UpsertProjectDialog({ isNew }: UpsertProjectDialogProps)
 							value={ownerId}
 							onChange={e => setOwnerId(+e.target.value)}
 						>
-							{users.map(option => (
-								<MenuItem key={option.value} value={option.value}>
-									{option.label}
+							{users.map(user => (
+								<MenuItem key={user.UserId} value={user.UserId}>
+									{`${user.FirstName} (${user.Login})`}
 								</MenuItem>
 							))}
 						</TextField>

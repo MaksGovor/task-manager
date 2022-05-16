@@ -13,31 +13,27 @@ import AddIcon from '@mui/icons-material/Add';
 import { Button, MenuItem, TextField, Typography } from '@mui/material';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { TaskProps } from '../Task/Task';
 import { Transition } from '../shared/Transition';
-import { TaskResponseDto } from 'clients/CoreService';
-
-const users = [
-	{
-		value: '1',
-		label: 'auser',
-	},
-	{
-		value: '2',
-		label: 'buser',
-	},
-];
+import { ProjectResponseDto, TaskResponseDto, UserResponseDto } from 'clients/CoreService';
 
 export interface UpsertTaskDialogProps {
 	taskDto?: TaskResponseDto;
 	isNew: boolean;
+	users: UserResponseDto[];
+	projects: ProjectResponseDto[];
 }
 
-export default function UpsertTaskDialog({ taskDto, isNew }: UpsertTaskDialogProps) {
+export default function UpsertTaskDialog({
+	taskDto,
+	isNew,
+	users,
+	projects,
+}: UpsertTaskDialogProps) {
 	const [open, setOpen] = React.useState(false);
 	const [taskName, setTaskName] = React.useState(taskDto?.TaskName || '');
 	const [taskDescription, setTaskDescription] = React.useState(taskDto?.Description || '');
 	const [executor, setExecutor] = React.useState(taskDto?.Executor.UserId);
+	const [project, setProject] = React.useState(taskDto?.Project.ProjectId);
 	const [startDate, setStartDate] = React.useState<Date | null>(new Date(taskDto?.StartDate || ''));
 	const [endDate, setEndDate] = React.useState<Date | null>(new Date(taskDto?.EndDate || ''));
 
@@ -134,9 +130,25 @@ export default function UpsertTaskDialog({ taskDto, isNew }: UpsertTaskDialogPro
 							value={executor}
 							onChange={e => setExecutor(+e.target.value)}
 						>
-							{users.map(option => (
-								<MenuItem key={option.value} value={option.value}>
-									{option.label}
+							{users.map(user => (
+								<MenuItem key={user.UserId} value={user.UserId}>
+									{`${user.FirstName} (${user.Login})`}
+								</MenuItem>
+							))}
+						</TextField>
+					</ListItem>
+					<Divider />
+					<ListItem>
+						<TextField
+							fullWidth
+							label='Project'
+							select
+							value={project}
+							onChange={e => setProject(+e.target.value)}
+						>
+							{projects.map(project => (
+								<MenuItem key={project.ProjectId} value={project.ProjectId}>
+									{project.ProjectName}
 								</MenuItem>
 							))}
 						</TextField>

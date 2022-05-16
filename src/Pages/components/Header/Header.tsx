@@ -4,8 +4,14 @@ import { HeaderContainer, ManageContainer } from './Header.styles';
 import UserListDialog from '../UserListDialog';
 import ProjectListDialog from '../ProjectListDialog';
 import UpsertTaskDialog from '../UpsertTaskDialog';
+import { ProjectResponseDto, UserResponseDto } from 'clients/CoreService';
 
-function Header() {
+export interface HeaderProps {
+	users: UserResponseDto[];
+	projects: ProjectResponseDto[];
+}
+
+function Header({ users, projects }: HeaderProps) {
 	return (
 		<HeaderContainer>
 			<Typography
@@ -16,9 +22,9 @@ function Header() {
 				MG Task Manager
 			</Typography>
 			<ManageContainer>
-				<UpsertTaskDialog isNew={true}></UpsertTaskDialog>
-				<UserListDialog></UserListDialog>
-				<ProjectListDialog></ProjectListDialog>
+				<UpsertTaskDialog isNew={true} users={users} projects={projects}></UpsertTaskDialog>
+				<UserListDialog users={users}></UserListDialog>
+				<ProjectListDialog projects={projects} users={users}></ProjectListDialog>
 			</ManageContainer>
 		</HeaderContainer>
 	);

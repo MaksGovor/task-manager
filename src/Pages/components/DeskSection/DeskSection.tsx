@@ -1,16 +1,18 @@
 import React from 'react';
-import { Box, List, ListItem, Paper, Typography } from '@mui/material';
+import { Box, Paper, Typography } from '@mui/material';
 import Task from '../Task';
-import { TaskResponseDto } from 'clients/CoreService';
-import { Droppable, DraggableProvided } from 'react-beautiful-dnd';
+import { ProjectResponseDto, TaskResponseDto, UserResponseDto } from 'clients/CoreService';
+import { Droppable } from 'react-beautiful-dnd';
 
 export interface DeskSectionPropTypes {
 	tasks: TaskResponseDto[];
 	status: string;
 	index: number;
+	users: UserResponseDto[];
+	projects: ProjectResponseDto[];
 }
 
-function DeskSection({ tasks, status }: DeskSectionPropTypes) {
+function DeskSection({ tasks, status, users, projects }: DeskSectionPropTypes) {
 	return (
 		<Droppable droppableId={status} type='TASK'>
 			{(provided, snapshot) => (
@@ -29,9 +31,15 @@ function DeskSection({ tasks, status }: DeskSectionPropTypes) {
 									background: '#b3d0ff',
 								}}
 							>
-								{tasks.length >= 0 &&
+								{tasks &&
 									tasks.map((taskDto, index) => (
-										<Task taskDto={taskDto} key={taskDto.TaskId} index={index}></Task>
+										<Task
+											taskDto={taskDto}
+											key={taskDto.TaskId}
+											index={index}
+											users={users}
+											projects={projects}
+										></Task>
 									))}
 							</Paper>
 						</div>
