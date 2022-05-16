@@ -11,7 +11,12 @@ import {
 	Typography,
 } from '@mui/material';
 import { CenteredBox, TaskContainer } from './Task.styles';
-import { ProjectResponseDto, TaskResponseDto, UserResponseDto } from '../../../clients/CoreService';
+import {
+	ProjectResponseDto,
+	TaskResponseDto,
+	TasksService,
+	UserResponseDto,
+} from '../../../clients/CoreService';
 import { getDateWithTimeZone } from 'shared/utils/util';
 import UpsertTaskDialog from '../UpsertTaskDialog';
 
@@ -21,7 +26,15 @@ import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import AlarmOnIcon from '@mui/icons-material/AlarmOn';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Draggable } from 'react-beautiful-dnd';
+import LowPriorityIcon from '@mui/icons-material/LowPriority';
+import {
+	Draggable,
+	DraggableStateSnapshot,
+	DraggingStyle,
+	NotDraggingStyle,
+} from 'react-beautiful-dnd';
+import { taskEntity } from 'shared/utils/entity';
+import { useMutation, useQueryClient } from 'react-query';
 
 export interface TaskProps {
 	taskDto: TaskResponseDto;
@@ -42,11 +55,45 @@ enum ColorStatus {
 	'#42d48f',
 }
 
+function getStyle(
+	style: DraggingStyle | NotDraggingStyle | undefined,
+	snapshot: DraggableStateSnapshot,
+) {
+	if (!snapshot.isDropAnimating) {
+		return style;
+	}
+	return {
+		...style,
+		// cannot be 0, but make it super tiny
+		transition: 'all .5s cubic-bezier(.25,.8,.25,1)',
+	};
+}
+
 function Task({ taskDto, index, users, projects }: TaskProps) {
+	const queryClient = useQueryClient();
+
+	const { mutate: deleteTask, isLoading: isDeleteLoading } = useMutation(
+		[taskEntity],
+		(id: number) => {
+			return TasksService.tasksDelete(id);
+		},
+		{
+			onError: console.log,
+			onSettled: () => {
+				queryClient.invalidateQueries(taskEntity);
+			},
+		},
+	);
+
 	return (
 		<Draggable draggableId={taskDto.TaskId + ''} index={index}>
 			{(provided, snapshot) => (
-				<div {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
+				<div
+					{...provided.draggableProps}
+					{...provided.dragHandleProps}
+					ref={provided.innerRef}
+					style={getStyle(provided.draggableProps.style, snapshot)}
+				>
 					<ListItem>
 						<TaskContainer>
 							<Card sx={{ minWidth: 240, maxWidth: 310, cursor: 'pointer' }}>
@@ -60,11 +107,17 @@ function Task({ taskDto, index, users, projects }: TaskProps) {
 											{Status[taskDto.Status]}
 										</Button>
 									</CenteredBox>
-									<Divider />
+									<Divider sx={{ mb: 1 }} />
 									<Stack direction='row' alignItems='center' gap={1} sx={{ mb: 1.5 }}>
 										<TaskAltIcon />
 										<Typography variant='h5' component='div'>
 											{taskDto.TaskName}
+										</Typography>
+									</Stack>
+									<Stack direction='row' alignItems='center' gap={1} sx={{ mb: 1.5 }}>
+										<LowPriorityIcon />
+										<Typography variant='body2' component='div'>
+											Priority: {taskDto.Priority}
 										</Typography>
 									</Stack>
 									{taskDto.StartDate && (
@@ -101,7 +154,10 @@ function Task({ taskDto, index, users, projects }: TaskProps) {
 										users={users}
 										projects={projects}
 									/>
-									<IconButton aria-label='delete'>
+									<IconButton
+										aria-label='delete'
+										onClick={() => (taskDto.TaskId ? deleteTask(taskDto.TaskId) : 0)}
+									>
 										<DeleteIcon />
 									</IconButton>
 								</CardActions>

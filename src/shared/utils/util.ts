@@ -1,8 +1,6 @@
 export const getDateWithTimeZone = (utcDateString: string): string => {
-	const offset = new Date().getTimezoneOffset();
-	const utcTime = new Date(utcDateString).getTime();
-	const dateWithOffset = new Date(utcTime + 3600000 * offset);
-	return dateWithOffset.toLocaleString();
+	const utc = new Date(utcDateString);
+	return utc.toLocaleString();
 };
 
 export const groupBy = (xs: any[], key: string) => {
@@ -10,4 +8,17 @@ export const groupBy = (xs: any[], key: string) => {
 		(rv[x[key]] = rv[x[key]] || []).push(x);
 		return rv;
 	}, []);
+};
+
+export const getStatus = (s: string) => {
+	switch (s) {
+		case 'Not Started':
+			return 0;
+		case 'In Progress':
+			return 1;
+		case 'Finished':
+			return 2;
+		default:
+			return 0;
+	}
 };

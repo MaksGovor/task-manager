@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { Dispatch, SetStateAction, useEffect } from 'react';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
 import List from '@mui/material/List';
@@ -10,29 +10,45 @@ import Dialog from '@mui/material/Dialog';
 import PersonIcon from '@mui/icons-material/Person';
 import Typography from '@mui/material/Typography';
 import { blue } from '@mui/material/colors';
-import { ProjectResponseDto, UserResponseDto } from 'clients/CoreService';
+import { ProjectResponseDto, ProjectsService, UserResponseDto } from 'clients/CoreService';
 import { Box, IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import UpsertProjectDialog from '../UpsertProjectDialog';
+import { useMutation, useQueryClient } from 'react-query';
+import { projectEntity, taskEntity } from 'shared/utils/entity';
 
 export interface SimpleDialogProps {
 	open: boolean;
 	selectedValue: string;
-	onClose: (value: string) => void;
+	onClose: (value: string, id?: number) => void;
 	projects: ProjectResponseDto[];
 	users: UserResponseDto[];
 }
 
 function SimpleDialog(props: SimpleDialogProps) {
+	const queryClient = useQueryClient();
 	const { onClose, selectedValue, open } = props;
 
 	const handleClose = () => {
 		onClose(selectedValue);
 	};
 
-	const handleListItemClick = (value: string) => {
-		onClose(value);
+	const handleListItemClick = (value: string, id?: number) => {
+		onClose(value, id);
 	};
+
+	const { mutate: deleteProject, isLoading: isDeleteLoading } = useMutation(
+		[projectEntity, taskEntity],
+		(id: number) => {
+			return ProjectsService.projectsDelete(id);
+		},
+		{
+			onError: console.log,
+			onSettled: () => {
+				queryClient.invalidateQueries([projectEntity, taskEntity]);
+			},
+		},
+	);
 
 	return (
 		<Dialog onClose={handleClose} open={open} fullWidth maxWidth={'xs'}>
@@ -41,7 +57,7 @@ function SimpleDialog(props: SimpleDialogProps) {
 				{props.projects.map(project => (
 					<ListItem
 						button
-						onClick={() => handleListItemClick(project.ProjectName)}
+						onClick={() => handleListItemClick(project.ProjectName, project.ProjectId)}
 						key={project.ProjectId}
 					>
 						<ListItemAvatar>
@@ -54,7 +70,8 @@ function SimpleDialog(props: SimpleDialogProps) {
 							aria-label='delete'
 							onClick={e => {
 								e.stopPropagation();
-								console.log(project.ProjectId);
+								if (project.ProjectId && props.projects.length > 1)
+									deleteProject(project.ProjectId);
 							}}
 						>
 							<DeleteIcon />
@@ -62,7 +79,7 @@ function SimpleDialog(props: SimpleDialogProps) {
 						<UpsertProjectDialog
 							isNew={false}
 							users={props.users}
-							project={project}
+							projectDto={project}
 						></UpsertProjectDialog>
 					</ListItem>
 				))}
@@ -75,22 +92,33 @@ function SimpleDialog(props: SimpleDialogProps) {
 export interface ProjectListDialogProps {
 	projects: ProjectResponseDto[];
 	users: UserResponseDto[];
+	setCurrentProject: Dispatch<SetStateAction<number | undefined>>;
 }
 
-export default function ProjectListDialog({ projects, users }: ProjectListDialogProps) {
+export default function ProjectListDialog({
+	projects,
+	users,
+	setCurrentProject,
+}: ProjectListDialogProps) {
 	const [open, setOpen] = React.useState(false);
 	const [selectedValue, setSelectedValue] = React.useState(
 		projects[0] ? projects[0].ProjectName : '',
 	);
+	const [selectedId, setSelectedId] = React.useState(projects[0] ? projects[0].ProjectId : 0);
 
 	const handleClickOpen = () => {
 		setOpen(true);
 	};
 
-	const handleClose = (value: string) => {
+	const handleClose = (value: string, id?: number) => {
 		setOpen(false);
 		setSelectedValue(value);
+		setSelectedId(id);
 	};
+
+	useEffect(() => {
+		if (selectedId) setCurrentProject(selectedId);
+	}, [selectedId]);
 
 	return (
 		<Box sx={{ maxWidth: 300 }}>

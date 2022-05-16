@@ -1,20 +1,23 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { MainPageContainer } from './MainPage.styles';
 import { ProjectsService, TasksService, UsersService } from '../clients/CoreService';
 import Desk from './components/Desk/Desk';
 import Header from './components/Header';
 import { useQuery, useQueryClient } from 'react-query';
 import { projectEntity, taskEntity, userEntity } from 'shared/utils/entity';
-import { LinearProgress } from '@mui/material';
+import { LinearProgress, Typography } from '@mui/material';
 import { groupBy } from 'shared/utils/util';
 
 function MainPage() {
 	const queryClient = useQueryClient();
+	const [currentProject, setCurrentProject] = useState<number>();
+
 	const { data: existingTasks, isLoading: isTasksLoading } = useQuery(
-		[taskEntity],
-		() => TasksService.tasksGet(2),
+		[taskEntity, currentProject],
+		() => (currentProject ? TasksService.tasksGet(currentProject) : 0),
 		{
 			onError: console.log,
+			enabled: !!currentProject,
 		},
 	);
 
@@ -39,13 +42,28 @@ function MainPage() {
 		[isProjectsLoading, isUsersLoading, isTasksLoading],
 	);
 
-	console.log({ existingProjects, existingUsers, isLoading });
+	useEffect(() => {
+		queryClient.invalidateQueries(taskEntity);
+	}, [currentProject]);
 
 	return (
 		<>
-			{!isLoading && <Header users={existingUsers} projects={existingProjects} />}
+			{!isLoading && (
+				<Header
+					users={existingUsers}
+					projects={existingProjects}
+					setCurrentProject={setCurrentProject}
+				/>
+			)}
 			<MainPageContainer>
 				{isLoading && <LinearProgress />}
+				{(!existingProjects.length || !existingUsers.length) && (
+					<>
+						<Typography variant='h3' color={'#5b00a1'}>
+							For start you may register at least one user and create first project
+						</Typography>
+					</>
+				)}
 				{existingTasks && (
 					<Desk
 						tasks={groupBy(existingTasks, 'Status')}

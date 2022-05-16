@@ -14,7 +14,15 @@ import { Button, MenuItem, TextField, Typography } from '@mui/material';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { Transition } from '../shared/Transition';
-import { ProjectResponseDto, TaskResponseDto, UserResponseDto } from 'clients/CoreService';
+import {
+	ProjectResponseDto,
+	TaskRequestDto,
+	TaskResponseDto,
+	TasksService,
+	UserResponseDto,
+} from 'clients/CoreService';
+import { taskEntity } from 'shared/utils/entity';
+import { useMutation, useQueryClient } from 'react-query';
 
 export interface UpsertTaskDialogProps {
 	taskDto?: TaskResponseDto;
@@ -29,9 +37,11 @@ export default function UpsertTaskDialog({
 	users,
 	projects,
 }: UpsertTaskDialogProps) {
+	const queryClient = useQueryClient();
 	const [open, setOpen] = React.useState(false);
 	const [taskName, setTaskName] = React.useState(taskDto?.TaskName || '');
 	const [taskDescription, setTaskDescription] = React.useState(taskDto?.Description || '');
+	const [priority, setPriority] = React.useState(taskDto?.Priority);
 	const [executor, setExecutor] = React.useState(taskDto?.Executor.UserId);
 	const [project, setProject] = React.useState(taskDto?.Project.ProjectId);
 	const [startDate, setStartDate] = React.useState<Date | null>(new Date(taskDto?.StartDate || ''));
@@ -45,8 +55,47 @@ export default function UpsertTaskDialog({
 		setOpen(false);
 	};
 
+	const { mutate: createTask, isLoading: isCreateLoading } = useMutation(
+		[taskEntity],
+		(task: TaskRequestDto) => {
+			return TasksService.tasksPost(task);
+		},
+		{
+			onError: console.log,
+			onSettled: () => {
+				queryClient.invalidateQueries(taskEntity);
+				setOpen(false);
+			},
+		},
+	);
+
+	const { mutate: updateTask, isLoading: isUpdateLoading } = useMutation(
+		[taskEntity],
+		(task: TaskRequestDto) => {
+			return TasksService.tasksPut1(taskDto?.TaskId || 0, task);
+		},
+		{
+			onError: console.log,
+			onSettled: () => {
+				queryClient.invalidateQueries(taskEntity);
+				setOpen(false);
+			},
+		},
+	);
+
 	const handleSave = () => {
-		setOpen(false);
+		const task: TaskRequestDto = {
+			TaskName: taskName,
+			Description: taskDescription,
+			Priority: priority || 1,
+			Status: taskDto?.Status || 0,
+			StartDate: startDate?.toUTCString(),
+			EndDate: endDate?.toUTCString(),
+			ProjectId: project || 0,
+			ExecutorId: executor || 0,
+		};
+
+		!isNew && taskDto?.TaskId ? updateTask(task) : createTask(task);
 	};
 
 	return (
@@ -95,6 +144,16 @@ export default function UpsertTaskDialog({
 							label='Task Name'
 							value={taskName}
 							onChange={e => setTaskName(e.target.value)}
+						/>
+					</ListItem>
+					<Divider />
+					<ListItem>
+						<TextField
+							fullWidth
+							required
+							label='Priority'
+							value={priority}
+							onChange={e => setPriority(+e.target.value)}
 						/>
 					</ListItem>
 					<Divider />

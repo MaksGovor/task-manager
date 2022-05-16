@@ -10,10 +10,12 @@ import Dialog from '@mui/material/Dialog';
 import PersonIcon from '@mui/icons-material/Person';
 import Typography from '@mui/material/Typography';
 import { blue } from '@mui/material/colors';
-import { UserResponseDto } from 'clients/CoreService';
+import { UserResponseDto, UsersService } from 'clients/CoreService';
 import { Box, IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import CreateUserDialog from '../CreateUserDialog';
+import { projectEntity, taskEntity, userEntity } from 'shared/utils/entity';
+import { useMutation, useQueryClient } from 'react-query';
 
 export interface SimpleDialogProps {
 	open: boolean;
@@ -23,6 +25,7 @@ export interface SimpleDialogProps {
 }
 
 function SimpleDialog(props: SimpleDialogProps) {
+	const queryClient = useQueryClient();
 	const { onClose, selectedValue, open } = props;
 
 	const handleClose = () => {
@@ -32,6 +35,19 @@ function SimpleDialog(props: SimpleDialogProps) {
 	const handleListItemClick = (value: string) => {
 		onClose(value);
 	};
+
+	const { mutate: deleteUser, isLoading: isDeleteLoading } = useMutation(
+		[projectEntity, taskEntity, userEntity],
+		(id: number) => {
+			return UsersService.usersDelete(id);
+		},
+		{
+			onError: console.log,
+			onSettled: () => {
+				queryClient.invalidateQueries([projectEntity, taskEntity, userEntity]);
+			},
+		},
+	);
 
 	return (
 		<Dialog onClose={handleClose} open={open} fullWidth maxWidth={'xs'}>
@@ -49,7 +65,7 @@ function SimpleDialog(props: SimpleDialogProps) {
 							aria-label='delete'
 							onClick={e => {
 								e.stopPropagation();
-								console.log(user.UserId);
+								if (user.UserId && props.users.length > 1) deleteUser(user.UserId);
 							}}
 						>
 							<DeleteIcon />
