@@ -22,6 +22,7 @@ import {
 } from 'clients/CoreService';
 import { useMutation, useQueryClient } from 'react-query';
 import { projectEntity } from 'shared/utils/entity';
+import { useSnackbarOnError } from 'hooks/useSnackbarOnError';
 
 export interface UpsertProjectDialogProps {
 	isNew: boolean;
@@ -59,7 +60,7 @@ export default function UpsertProjectDialog({
 			return ProjectsService.projectsPost(project);
 		},
 		{
-			onError: console.log,
+			onError: useSnackbarOnError(),
 			onSettled: () => {
 				queryClient.invalidateQueries(projectEntity);
 				setOpen(false);
@@ -73,7 +74,7 @@ export default function UpsertProjectDialog({
 			return ProjectsService.projectsPut(projectDto?.ProjectId || 0, project);
 		},
 		{
-			onError: console.log,
+			onError: useSnackbarOnError(),
 			onSettled: () => {
 				queryClient.invalidateQueries(projectEntity);
 				setOpen(false);

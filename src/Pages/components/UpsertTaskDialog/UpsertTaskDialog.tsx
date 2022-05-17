@@ -23,6 +23,7 @@ import {
 } from 'clients/CoreService';
 import { taskEntity } from 'shared/utils/entity';
 import { useMutation, useQueryClient } from 'react-query';
+import { useSnackbarOnError } from 'hooks/useSnackbarOnError';
 
 export interface UpsertTaskDialogProps {
 	taskDto?: TaskResponseDto;
@@ -61,7 +62,7 @@ export default function UpsertTaskDialog({
 			return TasksService.tasksPost(task);
 		},
 		{
-			onError: console.log,
+			onError: useSnackbarOnError(),
 			onSettled: () => {
 				queryClient.invalidateQueries(taskEntity);
 				setOpen(false);
@@ -75,7 +76,7 @@ export default function UpsertTaskDialog({
 			return TasksService.tasksPut1(taskDto?.TaskId || 0, task);
 		},
 		{
-			onError: console.log,
+			onError: useSnackbarOnError(),
 			onSettled: () => {
 				queryClient.invalidateQueries(taskEntity);
 				setOpen(false);

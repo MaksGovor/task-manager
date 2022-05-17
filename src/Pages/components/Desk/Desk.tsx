@@ -14,6 +14,7 @@ import { DragDropContext, DropResult, ResponderProvided } from 'react-beautiful-
 import { useMutation, useQueryClient } from 'react-query';
 import { taskEntity } from 'shared/utils/entity';
 import { getStatus } from 'shared/utils/util';
+import { useSnackbarOnError } from 'hooks/useSnackbarOnError';
 
 export interface DeskPropTypes {
 	tasks: TaskResponseDto[][];
@@ -37,7 +38,7 @@ function Desk({ tasks, users, projects }: DeskPropTypes) {
 			return TasksService.tasksPut(args.id, args.status);
 		},
 		{
-			onError: console.log,
+			onError: useSnackbarOnError(),
 			onSettled: () => {
 				queryClient.invalidateQueries(taskEntity);
 			},

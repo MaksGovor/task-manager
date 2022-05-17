@@ -3,6 +3,7 @@ import './App.css';
 import MainPage from 'Pages';
 import { OpenAPI as CoreOpenAPi } from 'clients/CoreService';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import { SnackbarProvider } from 'hooks/snackbar.provider';
 
 CoreOpenAPi.BASE = process.env.REACT_APP_CORE_URL as string;
 
@@ -12,7 +13,9 @@ function App() {
 	return (
 		<div className='App'>
 			<QueryClientProvider client={queryClient}>
-				<MainPage></MainPage>
+				<SnackbarProvider>
+					<MainPage />
+				</SnackbarProvider>
 			</QueryClientProvider>
 		</div>
 	);

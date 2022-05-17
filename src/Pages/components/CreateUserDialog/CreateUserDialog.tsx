@@ -14,6 +14,7 @@ import { Transition } from '../shared/Transition';
 import { userEntity } from 'shared/utils/entity';
 import { useMutation, useQueryClient } from 'react-query';
 import { UserRequestDto, UsersService } from 'clients/CoreService';
+import { useSnackbarOnError } from 'hooks/useSnackbarOnError';
 
 export default function CreateUserDialog() {
 	const queryClient = useQueryClient();
@@ -37,7 +38,7 @@ export default function CreateUserDialog() {
 			return UsersService.usersPost(user);
 		},
 		{
-			onError: console.log,
+			onError: useSnackbarOnError(),
 			onSettled: () => {
 				queryClient.invalidateQueries(userEntity);
 				setOpen(false);

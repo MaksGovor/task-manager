@@ -35,6 +35,7 @@ import {
 } from 'react-beautiful-dnd';
 import { taskEntity } from 'shared/utils/entity';
 import { useMutation, useQueryClient } from 'react-query';
+import { useSnackbarOnError } from 'hooks/useSnackbarOnError';
 
 export interface TaskProps {
 	taskDto: TaskResponseDto;
@@ -78,7 +79,7 @@ function Task({ taskDto, index, users, projects }: TaskProps) {
 			return TasksService.tasksDelete(id);
 		},
 		{
-			onError: console.log,
+			onError: useSnackbarOnError(),
 			onSettled: () => {
 				queryClient.invalidateQueries(taskEntity);
 			},

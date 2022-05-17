@@ -7,6 +7,7 @@ import { useQuery, useQueryClient } from 'react-query';
 import { projectEntity, taskEntity, userEntity } from 'shared/utils/entity';
 import { LinearProgress, Typography } from '@mui/material';
 import { groupBy } from 'shared/utils/util';
+import { useSnackbarOnError } from 'hooks/useSnackbarOnError';
 
 function MainPage() {
 	const queryClient = useQueryClient();
@@ -16,7 +17,7 @@ function MainPage() {
 		[taskEntity, currentProject],
 		() => (currentProject ? TasksService.tasksGet(currentProject) : 0),
 		{
-			onError: console.log,
+			onError: useSnackbarOnError(),
 			enabled: !!currentProject,
 		},
 	);
@@ -25,7 +26,7 @@ function MainPage() {
 		[userEntity],
 		() => UsersService.usersGet(),
 		{
-			onError: console.log,
+			onError: useSnackbarOnError(),
 		},
 	);
 
@@ -33,7 +34,7 @@ function MainPage() {
 		[projectEntity],
 		() => ProjectsService.projectsGet(),
 		{
-			onError: console.log,
+			onError: useSnackbarOnError(),
 		},
 	);
 
@@ -57,7 +58,7 @@ function MainPage() {
 			)}
 			<MainPageContainer>
 				{isLoading && <LinearProgress />}
-				{(!existingProjects.length || !existingUsers.length) && (
+				{!isLoading && (!existingProjects.length || !existingUsers.length) && (
 					<>
 						<Typography variant='h3' color={'#5b00a1'}>
 							For start you may register at least one user and create first project

@@ -16,6 +16,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import CreateUserDialog from '../CreateUserDialog';
 import { projectEntity, taskEntity, userEntity } from 'shared/utils/entity';
 import { useMutation, useQueryClient } from 'react-query';
+import { useSnackbarOnError } from 'hooks/useSnackbarOnError';
 
 export interface SimpleDialogProps {
 	open: boolean;
@@ -42,7 +43,7 @@ function SimpleDialog(props: SimpleDialogProps) {
 			return UsersService.usersDelete(id);
 		},
 		{
-			onError: console.log,
+			onError: useSnackbarOnError(),
 			onSettled: () => {
 				queryClient.invalidateQueries([projectEntity, taskEntity, userEntity]);
 			},
