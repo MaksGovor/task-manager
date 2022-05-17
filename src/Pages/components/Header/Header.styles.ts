@@ -5,7 +5,6 @@ export const HeaderContainer = styled(Box)`
 	display: flex;
 	justify-content: space-between;
 	max-height: 8vh;
-	height: 8vh;
 	background: #b3d0ff;
 	padding: 1vh 40px;
 `;

@@ -97,7 +97,7 @@ function Task({ taskDto, index, users, projects }: TaskProps) {
 				>
 					<ListItem>
 						<TaskContainer>
-							<Card sx={{ minWidth: 240, maxWidth: 310, cursor: 'pointer' }}>
+							<Card sx={{ minWidth: 240, maxWidth: 310 }}>
 								<CardContent sx={{ mb: 0 }}>
 									<CenteredBox>
 										<Button

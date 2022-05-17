@@ -17,24 +17,27 @@ import UpsertProjectDialog from '../UpsertProjectDialog';
 import { useMutation, useQueryClient } from 'react-query';
 import { projectEntity, taskEntity } from 'shared/utils/entity';
 import { useSnackbarOnError } from 'hooks/useSnackbarOnError';
+import { useSnackbar } from 'notistack';
 
 export interface SimpleDialogProps {
 	open: boolean;
 	selectedValue: string;
-	onClose: (value: string, id?: number) => void;
+	selectedId: number;
+	onClose: (value: string, id: number) => void;
 	projects: ProjectResponseDto[];
 	users: UserResponseDto[];
 }
 
 function SimpleDialog(props: SimpleDialogProps) {
 	const queryClient = useQueryClient();
+	const snackbar = useSnackbar();
 	const { onClose, selectedValue, open } = props;
 
 	const handleClose = () => {
-		onClose(selectedValue);
+		onClose(selectedValue, props.selectedId);
 	};
 
-	const handleListItemClick = (value: string, id?: number) => {
+	const handleListItemClick = (value: string, id: number) => {
 		onClose(value, id);
 	};
 
@@ -73,6 +76,8 @@ function SimpleDialog(props: SimpleDialogProps) {
 								e.stopPropagation();
 								if (project.ProjectId && props.projects.length > 1)
 									deleteProject(project.ProjectId);
+								else
+									snackbar.enqueueSnackbar('You can`n delete last project', { variant: 'error' });
 							}}
 						>
 							<DeleteIcon />
@@ -105,13 +110,13 @@ export default function ProjectListDialog({
 	const [selectedValue, setSelectedValue] = React.useState(
 		projects[0] ? projects[0].ProjectName : '',
 	);
-	const [selectedId, setSelectedId] = React.useState(projects[0] ? projects[0].ProjectId : 0);
+	const [selectedId, setSelectedId] = React.useState(projects[0].ProjectId);
 
 	const handleClickOpen = () => {
 		setOpen(true);
 	};
 
-	const handleClose = (value: string, id?: number) => {
+	const handleClose = (value: string, id: number) => {
 		setOpen(false);
 		setSelectedValue(value);
 		setSelectedId(id);
@@ -131,6 +136,7 @@ export default function ProjectListDialog({
 			</Button>
 			<SimpleDialog
 				selectedValue={selectedValue}
+				selectedId={selectedId}
 				open={open}
 				onClose={handleClose}
 				projects={projects}

@@ -5,7 +5,7 @@
 import type { UserResponseDto } from './UserResponseDto';
 
 export type ProjectResponseDto = {
-    ProjectId?: number;
+    ProjectId: number;
     ProjectName: string;
     BeginDate?: string;
     EndDate?: string;

@@ -3,7 +3,7 @@
 /* eslint-disable */
 
 export type UserResponseDto = {
-    UserId?: number;
+    UserId: number;
     FirstName?: string;
     LastName?: string;
     Login: string;

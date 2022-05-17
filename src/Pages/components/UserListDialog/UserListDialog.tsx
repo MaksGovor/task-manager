@@ -16,6 +16,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import CreateUserDialog from '../CreateUserDialog';
 import { projectEntity, taskEntity, userEntity } from 'shared/utils/entity';
 import { useMutation, useQueryClient } from 'react-query';
+import { useSnackbar } from 'notistack';
 import { useSnackbarOnError } from 'hooks/useSnackbarOnError';
 
 export interface SimpleDialogProps {
@@ -27,6 +28,7 @@ export interface SimpleDialogProps {
 
 function SimpleDialog(props: SimpleDialogProps) {
 	const queryClient = useQueryClient();
+	const snackbar = useSnackbar();
 	const { onClose, selectedValue, open } = props;
 
 	const handleClose = () => {
@@ -67,6 +69,7 @@ function SimpleDialog(props: SimpleDialogProps) {
 							onClick={e => {
 								e.stopPropagation();
 								if (user.UserId && props.users.length > 1) deleteUser(user.UserId);
+								else snackbar.enqueueSnackbar('You can`n delete last user', { variant: 'error' });
 							}}
 						>
 							<DeleteIcon />
