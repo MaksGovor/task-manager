@@ -6,5 +6,5 @@ export const MainPageContainer = styled(Box)`
 	margin: 0;
 	padding: 2vh;
 	background: #ecdeff;
-	height: 86vh;
+	height: 90vh;
 `;

@@ -11,19 +11,13 @@ import SaveIcon from '@mui/icons-material/Save';
 import AddIcon from '@mui/icons-material/Add';
 import { Avatar, ListItemAvatar, ListItemText, TextField } from '@mui/material';
 import { Transition } from '../shared/Transition';
-
-const users = [
-	{
-		value: '1',
-		label: 'auser',
-	},
-	{
-		value: '2',
-		label: 'buser',
-	},
-];
+import { userEntity } from 'shared/utils/entity';
+import { useMutation, useQueryClient } from 'react-query';
+import { UserRequestDto, UsersService } from 'clients/CoreService';
+import { useSnackbarOnError } from 'hooks/useSnackbarOnError';
 
 export default function CreateUserDialog() {
+	const queryClient = useQueryClient();
 	const [open, setOpen] = React.useState(false);
 	const [firstName, setFirstName] = React.useState<string>('');
 	const [lastName, setLastName] = React.useState<string>('');
@@ -36,6 +30,31 @@ export default function CreateUserDialog() {
 
 	const handleClose = () => {
 		setOpen(false);
+	};
+
+	const { mutate: createUser, isLoading: isCreateLoading } = useMutation(
+		[userEntity],
+		(user: UserRequestDto) => {
+			return UsersService.usersPost(user);
+		},
+		{
+			onError: useSnackbarOnError(),
+			onSettled: () => {
+				queryClient.invalidateQueries(userEntity);
+				setOpen(false);
+			},
+		},
+	);
+
+	const handleSave = () => {
+		const user: UserRequestDto = {
+			FirstName: firstName,
+			LastName: lastName,
+			Login: login,
+			PasswordHash: passwordHash,
+		};
+
+		createUser(user);
 	};
 
 	return (
@@ -60,7 +79,7 @@ export default function CreateUserDialog() {
 						<IconButton edge='start' color='inherit' onClick={handleClose} aria-label='close'>
 							<CloseIcon />
 						</IconButton>
-						<IconButton edge='start' color='inherit' onClick={handleClose} aria-label='close'>
+						<IconButton edge='start' color='inherit' onClick={handleSave} aria-label='close'>
 							<SaveIcon />
 						</IconButton>
 					</Toolbar>

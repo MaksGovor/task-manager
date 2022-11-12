@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { Dispatch, SetStateAction, useEffect } from 'react';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
 import List from '@mui/material/List';
@@ -10,75 +10,58 @@ import Dialog from '@mui/material/Dialog';
 import PersonIcon from '@mui/icons-material/Person';
 import Typography from '@mui/material/Typography';
 import { blue } from '@mui/material/colors';
-import { ProjectResponseDto } from 'clients/CoreService';
+import { ProjectResponseDto, ProjectsService, UserResponseDto } from 'clients/CoreService';
 import { Box, IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import UpsertProjectDialog from '../UpsertProjectDialog';
-
-const projects: ProjectResponseDto[] = [
-	{
-		ProjectId: 1,
-		ProjectName: 'aasa',
-		BeginDate: Date.now().toString(),
-		EndDate: new Date().toString(),
-		Owner: {
-			UserId: 1,
-			FirstName: 'Max',
-			LastName: 'Maxim',
-			Login: 'mm',
-		},
-	},
-	{
-		ProjectId: 2,
-		ProjectName: 'basa',
-		BeginDate: Date.now().toString(),
-		EndDate: new Date().toString(),
-		Owner: {
-			UserId: 1,
-			FirstName: 'Max',
-			LastName: 'Maxim',
-			Login: 'mm',
-		},
-	},
-	{
-		ProjectId: 3,
-		ProjectName: 'casa',
-		BeginDate: Date.now().toString(),
-		EndDate: new Date().toString(),
-		Owner: {
-			UserId: 1,
-			FirstName: 'Max',
-			LastName: 'Maxim',
-			Login: 'mm',
-		},
-	},
-];
+import { useMutation, useQueryClient } from 'react-query';
+import { projectEntity, taskEntity } from 'shared/utils/entity';
+import { useSnackbarOnError } from 'hooks/useSnackbarOnError';
+import { useSnackbar } from 'notistack';
 
 export interface SimpleDialogProps {
 	open: boolean;
 	selectedValue: string;
-	onClose: (value: string) => void;
+	selectedId: number;
+	onClose: (value: string, id: number) => void;
+	projects: ProjectResponseDto[];
+	users: UserResponseDto[];
 }
 
 function SimpleDialog(props: SimpleDialogProps) {
+	const queryClient = useQueryClient();
+	const snackbar = useSnackbar();
 	const { onClose, selectedValue, open } = props;
 
 	const handleClose = () => {
-		onClose(selectedValue);
+		onClose(selectedValue, props.selectedId);
 	};
 
-	const handleListItemClick = (value: string) => {
-		onClose(value);
+	const handleListItemClick = (value: string, id: number) => {
+		onClose(value, id);
 	};
+
+	const { mutate: deleteProject, isLoading: isDeleteLoading } = useMutation(
+		[projectEntity, taskEntity],
+		(id: number) => {
+			return ProjectsService.projectsDelete(id);
+		},
+		{
+			onError: useSnackbarOnError(),
+			onSettled: () => {
+				queryClient.invalidateQueries([projectEntity, taskEntity]);
+			},
+		},
+	);
 
 	return (
 		<Dialog onClose={handleClose} open={open} fullWidth maxWidth={'xs'}>
 			<DialogTitle>Projects</DialogTitle>
 			<List sx={{ pt: 0 }}>
-				{projects.map(project => (
+				{props.projects.map(project => (
 					<ListItem
 						button
-						onClick={() => handleListItemClick(project.ProjectName)}
+						onClick={() => handleListItemClick(project.ProjectName, project.ProjectId)}
 						key={project.ProjectId}
 					>
 						<ListItemAvatar>
@@ -91,32 +74,57 @@ function SimpleDialog(props: SimpleDialogProps) {
 							aria-label='delete'
 							onClick={e => {
 								e.stopPropagation();
-								console.log(project.ProjectId);
+								if (project.ProjectId && props.projects.length > 1)
+									deleteProject(project.ProjectId);
+								else
+									snackbar.enqueueSnackbar('You can`n delete last project', { variant: 'error' });
 							}}
 						>
 							<DeleteIcon />
 						</IconButton>
-						<UpsertProjectDialog isNew={false}></UpsertProjectDialog>
+						<UpsertProjectDialog
+							isNew={false}
+							users={props.users}
+							projectDto={project}
+						></UpsertProjectDialog>
 					</ListItem>
 				))}
-				<UpsertProjectDialog isNew={true}></UpsertProjectDialog>
+				<UpsertProjectDialog isNew={true} users={props.users}></UpsertProjectDialog>
 			</List>
 		</Dialog>
 	);
 }
 
-export default function ProjectListDialog() {
+export interface ProjectListDialogProps {
+	projects: ProjectResponseDto[];
+	users: UserResponseDto[];
+	setCurrentProject: Dispatch<SetStateAction<number | undefined>>;
+}
+
+export default function ProjectListDialog({
+	projects,
+	users,
+	setCurrentProject,
+}: ProjectListDialogProps) {
 	const [open, setOpen] = React.useState(false);
-	const [selectedValue, setSelectedValue] = React.useState(projects[1].ProjectName);
+	const [selectedValue, setSelectedValue] = React.useState(
+		projects[0] ? projects[0].ProjectName : '',
+	);
+	const [selectedId, setSelectedId] = React.useState(projects[0].ProjectId);
 
 	const handleClickOpen = () => {
 		setOpen(true);
 	};
 
-	const handleClose = (value: string) => {
+	const handleClose = (value: string, id: number) => {
 		setOpen(false);
 		setSelectedValue(value);
+		setSelectedId(id);
 	};
+
+	useEffect(() => {
+		if (selectedId) setCurrentProject(selectedId);
+	}, [selectedId]);
 
 	return (
 		<Box sx={{ maxWidth: 300 }}>
@@ -126,7 +134,14 @@ export default function ProjectListDialog() {
 			<Button variant='outlined' onClick={handleClickOpen} sx={{ maxHeight: 20 }}>
 				Manage projects
 			</Button>
-			<SimpleDialog selectedValue={selectedValue} open={open} onClose={handleClose} />
+			<SimpleDialog
+				selectedValue={selectedValue}
+				selectedId={selectedId}
+				open={open}
+				onClose={handleClose}
+				projects={projects}
+				users={users}
+			/>
 		</Box>
 	);
 }

@@ -14,28 +14,37 @@ import { Avatar, ListItemAvatar, ListItemText, MenuItem, TextField } from '@mui/
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { Transition } from '../shared/Transition';
-
-const users = [
-	{
-		value: '1',
-		label: 'auser',
-	},
-	{
-		value: '2',
-		label: 'buser',
-	},
-];
+import {
+	ProjectRequestDto,
+	ProjectResponseDto,
+	ProjectsService,
+	UserResponseDto,
+} from 'clients/CoreService';
+import { useMutation, useQueryClient } from 'react-query';
+import { projectEntity } from 'shared/utils/entity';
+import { useSnackbarOnError } from 'hooks/useSnackbarOnError';
 
 export interface UpsertProjectDialogProps {
 	isNew: boolean;
+	users: UserResponseDto[];
+	projectDto?: ProjectResponseDto;
 }
 
-export default function UpsertProjectDialog({ isNew }: UpsertProjectDialogProps) {
+export default function UpsertProjectDialog({
+	isNew,
+	users,
+	projectDto,
+}: UpsertProjectDialogProps) {
+	const queryClient = useQueryClient();
 	const [open, setOpen] = React.useState(false);
-	const [projectName, setProjectName] = React.useState<string>();
-	const [beginDate, setBeginDate] = React.useState<Date | null>();
-	const [endDate, setEndDate] = React.useState<Date | null>();
-	const [ownerId, setOwnerId] = React.useState<number>();
+	const [projectName, setProjectName] = React.useState<string>(
+		projectDto ? projectDto.ProjectName : '',
+	);
+	const [beginDate, setBeginDate] = React.useState<Date | null>(
+		new Date(projectDto?.BeginDate || ''),
+	);
+	const [endDate, setEndDate] = React.useState<Date | null>(new Date(projectDto?.EndDate || ''));
+	const [ownerId, setOwnerId] = React.useState<number | undefined>(projectDto?.Owner.UserId);
 
 	const handleClickOpen = () => {
 		setOpen(true);
@@ -43,6 +52,45 @@ export default function UpsertProjectDialog({ isNew }: UpsertProjectDialogProps)
 
 	const handleClose = () => {
 		setOpen(false);
+	};
+
+	const { mutate: createProject, isLoading: isCreateLoading } = useMutation(
+		[projectEntity],
+		(project: ProjectRequestDto) => {
+			return ProjectsService.projectsPost(project);
+		},
+		{
+			onError: useSnackbarOnError(),
+			onSettled: () => {
+				queryClient.invalidateQueries(projectEntity);
+				setOpen(false);
+			},
+		},
+	);
+
+	const { mutate: updateProject, isLoading: isUpdateLoading } = useMutation(
+		[projectEntity],
+		(project: ProjectRequestDto) => {
+			return ProjectsService.projectsPut(projectDto?.ProjectId || 0, project);
+		},
+		{
+			onError: useSnackbarOnError(),
+			onSettled: () => {
+				queryClient.invalidateQueries(projectEntity);
+				setOpen(false);
+			},
+		},
+	);
+
+	const handleSave = () => {
+		const project: ProjectRequestDto = {
+			ProjectName: projectName,
+			BeginDate: beginDate?.toUTCString(),
+			EndDate: endDate?.toUTCString(),
+			OwnerId: ownerId || 0,
+		};
+
+		!isNew && projectDto?.ProjectId ? updateProject(project) : createProject(project);
 	};
 
 	return (
@@ -80,12 +128,12 @@ export default function UpsertProjectDialog({ isNew }: UpsertProjectDialogProps)
 						<IconButton edge='start' color='inherit' onClick={handleClose} aria-label='close'>
 							<CloseIcon />
 						</IconButton>
-						<IconButton edge='start' color='inherit' onClick={handleClose} aria-label='close'>
+						<IconButton edge='start' color='inherit' onClick={handleSave} aria-label='close'>
 							<SaveIcon />
 						</IconButton>
 					</Toolbar>
 				</AppBar>
-				<List>
+				<List onClick={e => e.stopPropagation()}>
 					<ListItem>
 						<TextField
 							fullWidth
@@ -129,9 +177,9 @@ export default function UpsertProjectDialog({ isNew }: UpsertProjectDialogProps)
 							value={ownerId}
 							onChange={e => setOwnerId(+e.target.value)}
 						>
-							{users.map(option => (
-								<MenuItem key={option.value} value={option.value}>
-									{option.label}
+							{users.map(user => (
+								<MenuItem key={user.UserId} value={user.UserId}>
+									{`${user.FirstName} (${user.Login})`}
 								</MenuItem>
 							))}
 						</TextField>

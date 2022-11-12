@@ -13,31 +13,38 @@ import AddIcon from '@mui/icons-material/Add';
 import { Button, MenuItem, TextField, Typography } from '@mui/material';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { TaskProps } from '../Task/Task';
 import { Transition } from '../shared/Transition';
-import { TaskResponseDto } from 'clients/CoreService';
-
-const users = [
-	{
-		value: '1',
-		label: 'auser',
-	},
-	{
-		value: '2',
-		label: 'buser',
-	},
-];
+import {
+	ProjectResponseDto,
+	TaskRequestDto,
+	TaskResponseDto,
+	TasksService,
+	UserResponseDto,
+} from 'clients/CoreService';
+import { taskEntity } from 'shared/utils/entity';
+import { useMutation, useQueryClient } from 'react-query';
+import { useSnackbarOnError } from 'hooks/useSnackbarOnError';
 
 export interface UpsertTaskDialogProps {
 	taskDto?: TaskResponseDto;
 	isNew: boolean;
+	users: UserResponseDto[];
+	projects: ProjectResponseDto[];
 }
 
-export default function UpsertTaskDialog({ taskDto, isNew }: UpsertTaskDialogProps) {
+export default function UpsertTaskDialog({
+	taskDto,
+	isNew,
+	users,
+	projects,
+}: UpsertTaskDialogProps) {
+	const queryClient = useQueryClient();
 	const [open, setOpen] = React.useState(false);
 	const [taskName, setTaskName] = React.useState(taskDto?.TaskName || '');
 	const [taskDescription, setTaskDescription] = React.useState(taskDto?.Description || '');
+	const [priority, setPriority] = React.useState(taskDto?.Priority);
 	const [executor, setExecutor] = React.useState(taskDto?.Executor.UserId);
+	const [project, setProject] = React.useState(taskDto?.Project.ProjectId);
 	const [startDate, setStartDate] = React.useState<Date | null>(new Date(taskDto?.StartDate || ''));
 	const [endDate, setEndDate] = React.useState<Date | null>(new Date(taskDto?.EndDate || ''));
 
@@ -49,8 +56,47 @@ export default function UpsertTaskDialog({ taskDto, isNew }: UpsertTaskDialogPro
 		setOpen(false);
 	};
 
+	const { mutate: createTask, isLoading: isCreateLoading } = useMutation(
+		[taskEntity],
+		(task: TaskRequestDto) => {
+			return TasksService.tasksPost(task);
+		},
+		{
+			onError: useSnackbarOnError(),
+			onSettled: () => {
+				queryClient.invalidateQueries(taskEntity);
+				setOpen(false);
+			},
+		},
+	);
+
+	const { mutate: updateTask, isLoading: isUpdateLoading } = useMutation(
+		[taskEntity],
+		(task: TaskRequestDto) => {
+			return TasksService.tasksPut1(taskDto?.TaskId || 0, task);
+		},
+		{
+			onError: useSnackbarOnError(),
+			onSettled: () => {
+				queryClient.invalidateQueries(taskEntity);
+				setOpen(false);
+			},
+		},
+	);
+
 	const handleSave = () => {
-		setOpen(false);
+		const task: TaskRequestDto = {
+			TaskName: taskName,
+			Description: taskDescription,
+			Priority: priority || 1,
+			Status: taskDto?.Status || 0,
+			StartDate: startDate?.toUTCString(),
+			EndDate: endDate?.toUTCString(),
+			ProjectId: project || 0,
+			ExecutorId: executor || 0,
+		};
+
+		!isNew && taskDto?.TaskId ? updateTask(task) : createTask(task);
 	};
 
 	return (
@@ -103,6 +149,16 @@ export default function UpsertTaskDialog({ taskDto, isNew }: UpsertTaskDialogPro
 					</ListItem>
 					<Divider />
 					<ListItem>
+						<TextField
+							fullWidth
+							required
+							label='Priority'
+							value={priority}
+							onChange={e => setPriority(+e.target.value)}
+						/>
+					</ListItem>
+					<Divider />
+					<ListItem>
 						<LocalizationProvider dateAdapter={AdapterDateFns}>
 							<DateTimePicker
 								label='Start Date'
@@ -134,9 +190,25 @@ export default function UpsertTaskDialog({ taskDto, isNew }: UpsertTaskDialogPro
 							value={executor}
 							onChange={e => setExecutor(+e.target.value)}
 						>
-							{users.map(option => (
-								<MenuItem key={option.value} value={option.value}>
-									{option.label}
+							{users.map(user => (
+								<MenuItem key={user.UserId} value={user.UserId}>
+									{`${user.FirstName} (${user.Login})`}
+								</MenuItem>
+							))}
+						</TextField>
+					</ListItem>
+					<Divider />
+					<ListItem>
+						<TextField
+							fullWidth
+							label='Project'
+							select
+							value={project}
+							onChange={e => setProject(+e.target.value)}
+						>
+							{projects.map(project => (
+								<MenuItem key={project.ProjectId} value={project.ProjectId}>
+									{project.ProjectName}
 								</MenuItem>
 							))}
 						</TextField>

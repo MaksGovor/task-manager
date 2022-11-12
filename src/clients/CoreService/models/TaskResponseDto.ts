@@ -6,7 +6,7 @@ import type { ProjectResponseDto } from './ProjectResponseDto';
 import type { UserResponseDto } from './UserResponseDto';
 
 export type TaskResponseDto = {
-    TaskId?: number;
+    TaskId: number;
     TaskName: string;
     Description?: string;
     Priority: number;
